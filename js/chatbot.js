@@ -1,67 +1,51 @@
 /* =============================================
-   chatbot.js — FAQチャットボット
+   chatbot.js — Claude API チャットボット（フロントエンド）
+   バックエンド server.js の /api/chat エンドポイントと通信する
    ============================================= */
-
-/* FAQデータ：keywords に含まれる単語でマッチング */
-const FAQ_DATA = [
-  {
-    keywords: ['料金', '価格', '費用', 'コスト', 'いくら', '見積'],
-    question:  '料金・費用について教えてください',
-    answer:    'ご要件の規模により異なります。まずは無料相談からお気軽にお問い合わせください。詳細なお見積りをご提示いたします。',
-  },
-  {
-    keywords: ['納期', '期間', 'いつ', 'どのくらい', 'スケジュール'],
-    question:  '開発期間はどのくらいですか？',
-    answer:    '規模によって1ヶ月〜6ヶ月程度です。要件定義後に詳細スケジュールをご提案します。まずはご相談ください。',
-  },
-  {
-    keywords: ['技術', '言語', 'スタック', 'python', 'llm', 'ai', '対応'],
-    question:  '対応技術スタックを教えてください',
-    answer:    'Python / PyTorch / LLM（Claude・GPT・Gemini）/ MLOps / RAG / AWS・GCP など幅広く対応しております。',
-  },
-  {
-    keywords: ['問い合わせ', '連絡', '相談', 'contact', 'メール'],
-    question:  'お問い合わせ方法は？',
-    answer:    'ページ下部の「お問い合わせ」フォームからご連絡いただけます。24時間以内にご返信いたします。',
-  },
-  {
-    keywords: ['サービス', '何ができる', '何をしている', '業務', '提供'],
-    question:  'どんなサービスを提供していますか？',
-    answer:    'LLMソリューション開発・AIシステム構築・MLOps基盤整備・データ分析基盤の4つを主力サービスとして提供しています。',
-  },
-  {
-    keywords: ['会社', '設立', '代表', 'テスト太郎', 'プロフィール'],
-    question:  '会社・代表について教えてください',
-    answer:    '代表の「テスト太郎」はAIエンジニア歴10年以上。機械学習・大規模言語モデルの研究から本番導入まで一気通貫で支援しています。',
-  },
-];
-
-/* マッチしなかった場合のフォールバック回答 */
-const FALLBACK_ANSWER = 'ご質問ありがとうございます。詳しくはページ下部の「お問い合わせ」フォームよりご連絡ください。担当者よりご回答いたします。';
 
 /* ウェルカムメッセージ */
-const WELCOME_MESSAGE = 'こんにちは！AIアシスタントです。よくあるご質問に自動でお答えします。下のボタンから選ぶか、自由に入力してください 👇';
+const WELCOME_MESSAGE = 'こんにちは！テスト太郎 AI のアシスタントです 😊\nサービス内容・料金・技術スタックなど、なんでもお気軽にご質問ください。';
+
+/* よく聞かれる質問のサジェスト（ユーザーが選択しやすいように） */
+const SUGGESTED_QUESTIONS = [
+  'サービス内容を教えてください',
+  '料金はどのくらいですか？',
+  '対応技術を教えてください',
+  'お問い合わせ方法は？',
+];
 
 /* =============================================
-   DOM要素の取得
+   状態管理
    ============================================= */
-const toggleBtn     = document.getElementById('chatbot-toggle');
-const panel         = document.getElementById('chatbot-panel');
-const closeBtn      = document.querySelector('.chat-close');
-const messagesEl    = document.getElementById('chat-messages');
-const quickReplies  = document.getElementById('chat-quick-replies');
-const inputEl       = document.getElementById('chat-input');
-const sendBtn       = document.getElementById('chat-send');
+/* 会話履歴を保持する配列（Claude API に送る messages 形式） */
+let conversationHistory = [];
+/* AI が応答中かどうかのフラグ（多重送信防止） */
+let isResponding = false;
+
+/* =============================================
+   DOM 要素の取得
+   ============================================= */
+const toggleBtn    = document.getElementById('chatbot-toggle');
+const panel        = document.getElementById('chatbot-panel');
+const closeBtn     = document.querySelector('.chat-close');
+const messagesEl   = document.getElementById('chat-messages');
+const quickReplies = document.getElementById('chat-quick-replies');
+const inputEl      = document.getElementById('chat-input');
+const sendBtn      = document.getElementById('chat-send');
 
 /* =============================================
    チャットパネルの開閉
    ============================================= */
 toggleBtn.addEventListener('click', () => {
   const isOpen = panel.classList.toggle('open');
-  /* 初回開封時のみウェルカムメッセージを表示 */
+  /* 初回開封時のみウェルカムメッセージとサジェストを表示 */
   if (isOpen && messagesEl.children.length === 0) {
     addBotMessage(WELCOME_MESSAGE);
-    renderQuickReplies();
+    renderSuggestedQuestions();
+  }
+  if (isOpen) {
+    /* パネルが開いたら入力欄にフォーカス */
+    setTimeout(() => inputEl.focus(), 250);
   }
 });
 
@@ -72,6 +56,8 @@ closeBtn.addEventListener('click', () => {
 /* =============================================
    メッセージを追加する関数
    ============================================= */
+
+/** ユーザーのメッセージをチャットに追加 */
 function addUserMessage(text) {
   const msg = document.createElement('div');
   msg.className = 'chat-message user';
@@ -80,18 +66,24 @@ function addUserMessage(text) {
   scrollToBottom();
 }
 
-function addBotMessage(text) {
+/**
+ * ボットのメッセージをチャットに追加
+ * @returns {HTMLElement} バブル要素（ストリーミング更新用）
+ */
+function addBotMessage(text = '') {
   const msg = document.createElement('div');
   msg.className = 'chat-message bot';
   msg.innerHTML = `
     <div class="msg-icon">🤖</div>
-    <div class="bubble">${escapeHtml(text)}</div>
+    <div class="bubble">${formatBotText(text)}</div>
   `;
   messagesEl.appendChild(msg);
   scrollToBottom();
+  /* バブル要素を返してストリーミング更新できるようにする */
+  return msg.querySelector('.bubble');
 }
 
-/* タイピングインジケーターを追加し、要素を返す */
+/** タイピングインジケーターを追加し、ラッパー要素を返す */
 function addTypingIndicator() {
   const wrapper = document.createElement('div');
   wrapper.className = 'chat-message bot';
@@ -107,64 +99,118 @@ function addTypingIndicator() {
 }
 
 /* =============================================
-   クイック返信ボタンを描画
+   サジェストボタンを描画
    ============================================= */
-function renderQuickReplies() {
+function renderSuggestedQuestions() {
   quickReplies.innerHTML = '';
-  FAQ_DATA.slice(0, 4).forEach(item => {
+  SUGGESTED_QUESTIONS.forEach(q => {
     const btn = document.createElement('button');
     btn.className = 'quick-reply-btn';
-    btn.textContent = item.question;
-    btn.addEventListener('click', () => handleUserInput(item.question));
+    btn.textContent = q;
+    btn.addEventListener('click', () => {
+      if (!isResponding) handleUserInput(q);
+    });
     quickReplies.appendChild(btn);
   });
 }
 
 /* =============================================
-   ユーザー入力の処理（テキスト入力 & クイック返信共通）
+   ユーザー入力処理（テキスト入力 & サジェストクリック共通）
    ============================================= */
-function handleUserInput(text) {
+async function handleUserInput(text) {
   const trimmed = text.trim();
-  if (!trimmed) return;
+  if (!trimmed || isResponding) return;
 
-  /* 入力欄をリセット */
+  /* 入力欄・サジェストをリセット */
   inputEl.value = '';
-
-  /* クイック返信ボタンを一時的に非表示 */
   quickReplies.innerHTML = '';
+  updateSendButton(true);
+  isResponding = true;
 
+  /* ユーザーメッセージを表示し、履歴に追加 */
   addUserMessage(trimmed);
+  conversationHistory.push({ role: 'user', content: trimmed });
 
-  /* タイピング中表示 → 回答 */
+  /* タイピングインジケーターを表示 */
   const indicator = addTypingIndicator();
-  setTimeout(() => {
-    indicator.remove();
-    const answer = findAnswer(trimmed);
-    addBotMessage(answer);
-    renderQuickReplies();
-  }, 800);
-}
 
-/* =============================================
-   FAQキーワードマッチング
-   ============================================= */
-function findAnswer(text) {
-  const lower = text.toLowerCase();
-  for (const item of FAQ_DATA) {
-    if (item.keywords.some(kw => lower.includes(kw.toLowerCase()))) {
-      return item.answer;
+  try {
+    /* バックエンド /api/chat に SSE リクエストを送信
+       絶対 URL を使うことで file:// で開いた場合でも正しく接続できる */
+    const response = await fetch('http://localhost:3000/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: conversationHistory }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
+
+    /* タイピングインジケーターを削除し、空のボットバブルを追加 */
+    indicator.remove();
+    const bubble = addBotMessage('');
+
+    /* SSE ストリームを読み込み、テキストをリアルタイム表示 */
+    let fullText = '';
+    const reader  = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer    = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      /* SSE の "data: {...}\n\n" 形式をパース */
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop(); /* 未完了の行をバッファに残す */
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const event = JSON.parse(line.slice(6));
+
+          if (event.type === 'delta') {
+            fullText += event.text;
+            /* リアルタイムでバブルを更新 */
+            bubble.innerHTML = formatBotText(fullText);
+            scrollToBottom();
+
+          } else if (event.type === 'done') {
+            /* 完了：会話履歴に追加 */
+            conversationHistory.push({ role: 'assistant', content: fullText });
+
+          } else if (event.type === 'error') {
+            bubble.textContent = event.message;
+          }
+        } catch {
+          /* JSON パース失敗は無視（部分的なチャンクの可能性） */
+        }
+      }
+    }
+
+  } catch (err) {
+    console.error('[Chatbot Error]', err);
+    indicator.remove();
+    addBotMessage('申し訳ありません、通信エラーが発生しました。しばらくしてから再度お試しください。');
+  } finally {
+    /* 応答完了：送信ボタンを復活させ、サジェストを再表示 */
+    isResponding = false;
+    updateSendButton(false);
+    renderSuggestedQuestions();
+    inputEl.focus();
   }
-  return FALLBACK_ANSWER;
 }
 
 /* =============================================
-   送信ボタン & Enterキーのイベント
+   送信ボタン & Enter キーのイベント
    ============================================= */
 sendBtn.addEventListener('click', () => handleUserInput(inputEl.value));
 
 inputEl.addEventListener('keydown', e => {
-  /* Shift+Enter は改行として扱わない（1行入力）、Enter のみ送信 */
+  /* Enter のみ送信（Shift+Enter は改行しない — 1行入力） */
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     handleUserInput(inputEl.value);
@@ -175,12 +221,24 @@ inputEl.addEventListener('keydown', e => {
    ユーティリティ
    ============================================= */
 
-/* メッセージエリアを最下部にスクロール */
+/** メッセージエリアを最下部にスクロール */
 function scrollToBottom() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-/* XSS対策：HTMLをエスケープ */
+/**
+ * ボットテキストのフォーマット処理
+ * - 改行を <br> に変換
+ * - **太字** を <strong> に変換（マークダウン風）
+ * - XSS 対策のエスケープを先に行う
+ */
+function formatBotText(text) {
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+/** XSS 対策：HTML 特殊文字をエスケープ */
 function escapeHtml(str) {
   return str
     .replace(/&/g, '&amp;')
@@ -188,4 +246,9 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+/** 送信ボタンの有効 / 無効を切り替える */
+function updateSendButton(disabled) {
+  sendBtn.disabled = disabled;
 }

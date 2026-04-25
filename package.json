@@ -1,0 +1,16 @@
+{
+  "name": "my-hp",
+  "version": "1.0.0",
+  "description": "テスト太郎 AI — チャットボット付きホームページ",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "dev": "node --env-file=.env --watch server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2"
+  }
+}
