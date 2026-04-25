@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テスト太郎 — AI エンジニア / AIソリューション</title>
+
+  <!-- スタイルシート読み込み -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/chatbot.css">
+</head>
+<body>
+
+  <!-- =============================================
+       ナビゲーション
+       ============================================= -->
+  <header id="navbar">
+    <div class="nav-inner">
+      <!-- ロゴ -->
+      <a href="#hero" class="nav-logo">
+        <div class="nav-logo-icon">🤖</div>
+        テスト太郎 AI
+      </a>
+
+      <!-- デスクトップ用ナビリンク -->
+      <ul class="nav-links">
+        <li><a href="#services">サービス</a></li>
+        <li><a href="#pricing">料金</a></li>
+        <li><a href="#about">会社紹介</a></li>
+        <li><a href="#testimonials">レビュー</a></li>
+        <li><a href="#contact" class="btn-primary" style="padding:8px 20px; color:#ffffff;">お問い合わせ</a></li>
+      </ul>
+
+      <!-- モバイル用ハンバーガーボタン -->
+      <button class="nav-hamburger" id="hamburger-btn" aria-label="メニューを開く">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー（全画面オーバーレイ） -->
+  <nav id="mobile-menu" aria-label="モバイルナビゲーション">
+    <a href="#services">サービス</a>
+    <a href="#pricing">料金</a>
+    <a href="#about">会社紹介</a>
+    <a href="#testimonials">レビュー</a>
+    <a href="#contact">お問い合わせ</a>
+  </nav>
+
+  <main>
+
+    <!-- =============================================
+         ヒーローセクション
+         ============================================= -->
+    <section id="hero">
+      <div class="hero-inner">
+
+        <!-- 左：テキスト＆CTA -->
+        <div class="hero-text">
+          <span class="hero-badge">AI × Innovation</span>
+          <h1>
+            AIで、<span class="gradient-text">"やりたい"を実現</span>
+          </h1>
+          <p class="hero-sub">
+            機械学習・大規模言語モデル（LLM）を活用したAIシステムの<br>
+            設計・開発・運用を一気通貫でサポートします。
+          </p>
+          <div class="hero-cta">
+            <a href="#contact" class="btn-primary">無料相談を予約する →</a>
+            <a href="#services" class="btn-secondary">サービスを見る</a>
+          </div>
+        </div>
+
+        <!-- 右：ターミナル風ビジュアル -->
+        <div class="hero-visual">
+          <div class="terminal-card">
+            <!-- ウィンドウバー -->
+            <div class="terminal-bar">
+              <div class="terminal-dot red"></div>
+              <div class="terminal-dot yellow"></div>
+              <div class="terminal-dot green"></div>
+              <span class="terminal-title">ai_solution.py</span>
+            </div>
+            <!-- コード風表示 -->
+            <div class="terminal-body">
+              <div class="terminal-line">
+                <span class="terminal-prompt">$</span>
+                <span class="terminal-cmd">python ai_solution.py</span>
+              </div>
+              <div class="terminal-output">✓ LLMモデルを初期化しました</div>
+              <div class="terminal-output">✓ RAGパイプラインを構築しました</div>
+              <div class="terminal-output">✓ APIエンドポイントを起動しました</div>
+              <div class="terminal-comment"># 推論精度: 97.3%</div>
+              <div class="terminal-comment"># レスポンスタイム: 120ms</div>
+              <div class="terminal-line" style="margin-top:8px;">
+                <span class="terminal-prompt">→</span>
+                <span class="terminal-cmd" style="color:#a855f7;">AIが課題を解決します 🚀</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =============================================
+         サービス・機能紹介セクション
+         ============================================= -->
+    <section id="services">
+      <div class="container">
+        <div class="section-header fade-in">
+          <span class="badge">SERVICES</span>
+          <h2>提供サービス</h2>
+          <p>お客様のビジネス課題に合わせた、AIソリューションをご提供します。</p>
+        </div>
+
+        <div class="services-grid">
+
+          <!-- カード1 -->
+          <div class="service-card fade-in">
+            <div class="service-icon">🧠</div>
+            <h3>LLMソリューション開発</h3>
+            <p>Claude・GPT・Geminiなどの大規模言語モデルを活用したチャットボット・文書処理・コード生成システムを構築します。</p>
+          </div>
+
+          <!-- カード2 -->
+          <div class="service-card fade-in">
+            <div class="service-icon">⚙️</div>
+            <h3>AIシステム構築</h3>
+            <p>画像認識・音声処理・推薦システムなど、機械学習モデルの設計から本番環境への導入まで一貫してサポートします。</p>
+          </div>
+
+          <!-- カード3 -->
+          <div class="service-card fade-in">
+            <div class="service-icon">🔄</div>
+            <h3>MLOps基盤整備</h3>
+            <p>モデルの継続的学習・監視・デプロイを自動化するMLOpsパイプラインを構築し、AIシステムの安定運用を実現します。</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         料金表セクション
+         ============================================= -->
+    <section id="pricing">
+      <div class="container">
+        <div class="section-header fade-in">
+          <span class="badge">PRICING</span>
+          <h2>料金プラン</h2>
+          <p>プロジェクトの規模に合わせてお選びいただけます。すべて税別表示です。</p>
+        </div>
+
+        <div class="pricing-grid">
+
+          <!-- ライトプラン -->
+          <div class="pricing-card fade-in">
+            <div class="pricing-plan">ライト</div>
+            <div class="pricing-price">¥150,000<span class="pricing-unit">〜/月</span></div>
+            <p class="pricing-desc">小規模なAI導入・PoC検証に最適なプランです。</p>
+            <ul class="pricing-features">
+              <li>✓ LLMチャットボット構築</li>
+              <li>✓ API連携（1サービス）</li>
+              <li>✓ 月次レポート</li>
+              <li>✓ メールサポート</li>
+            </ul>
+            <a href="#contact" class="btn-secondary pricing-btn">相談する</a>
+          </div>
+
+          <!-- スタンダードプラン（おすすめ） -->
+          <div class="pricing-card pricing-popular fade-in">
+            <div class="pricing-popular-badge">おすすめ</div>
+            <div class="pricing-plan">スタンダード</div>
+            <div class="pricing-price">¥400,000<span class="pricing-unit">〜/月</span></div>
+            <p class="pricing-desc">本番導入・継続改善を行うチームに最適なプランです。</p>
+            <ul class="pricing-features">
+              <li>✓ LLMシステム構築・運用</li>
+              <li>✓ RAGパイプライン構築</li>
+              <li>✓ API連携（複数サービス）</li>
+              <li>✓ MLOps基盤整備</li>
+              <li>✓ 週次MTG・優先サポート</li>
+            </ul>
+            <a href="#contact" class="btn-primary pricing-btn">相談する</a>
+          </div>
+
+          <!-- エンタープライズプラン -->
+          <div class="pricing-card fade-in">
+            <div class="pricing-plan">エンタープライズ</div>
+            <div class="pricing-price">要相談</div>
+            <p class="pricing-desc">大規模システムや長期契約をご希望の企業様向けです。</p>
+            <ul class="pricing-features">
+              <li>✓ スタンダードの全機能</li>
+              <li>✓ 専任エンジニアアサイン</li>
+              <li>✓ カスタムモデル開発</li>
+              <li>✓ SLA保証・24hサポート</li>
+              <li>✓ セキュリティ審査対応</li>
+            </ul>
+            <a href="#contact" class="btn-secondary pricing-btn">相談する</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         会社・自己紹介セクション
+         ============================================= -->
+    <section id="about">
+      <div class="container">
+        <div class="about-grid">
+
+          <!-- 左：テキスト -->
+          <div class="about-text fade-in">
+            <p class="about-label">ABOUT US</p>
+            <h2>AIの力で、<br><span class="gradient-text">課題を解決する</span></h2>
+            <p>
+              代表のテスト太郎は、AIエンジニア歴10年以上。
+              機械学習・深層学習の研究から、大規模言語モデルを使ったプロダクト開発まで
+              幅広い経験を持ちます。
+            </p>
+            <p>
+              お客様のビジネス課題を深く理解し、最適なAIソリューションを
+              スピーディーに提供することをミッションとしています。
+            </p>
+            <div class="skills-wrap" style="margin-top: 24px;">
+              <span class="skill-tag">Python</span>
+              <span class="skill-tag">PyTorch</span>
+              <span class="skill-tag">LLM</span>
+              <span class="skill-tag">MLOps</span>
+              <span class="skill-tag">Transformer</span>
+              <span class="skill-tag">RAG</span>
+              <span class="skill-tag">Fine-tuning</span>
+              <span class="skill-tag">AWS / GCP</span>
+            </div>
+          </div>
+
+          <!-- 右：アバター＆実績 -->
+          <div class="about-visual fade-in">
+            <div class="about-avatar">🤖</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">プロジェクト数</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">年の経験</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">97%</div>
+                <div class="stat-label">顧客満足度</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">24h</div>
+                <div class="stat-label">返信スピード</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         クライアントレビューセクション
+         ============================================= -->
+    <section id="testimonials">
+      <div class="container">
+        <div class="section-header fade-in">
+          <span class="badge">REVIEWS</span>
+          <h2>導入企業の声</h2>
+          <p>実際にご利用いただいたクライアント様からのレビューです。</p>
+        </div>
+
+        <div class="testimonials-grid">
+
+          <!-- レビュー1 -->
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg,#f59e0b,#ef4444);">山</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">山田 健一</div>
+                <div class="testimonial-role">CTO, TechForward株式会社</div>
+              </div>
+              <div class="testimonial-li">in</div>
+            </div>
+            <p class="testimonial-text">LLMを使った社内ドキュメント検索システムを導入してもらいました。検索精度が格段に上がり、情報収集にかかる時間が週10時間以上削減されました。費用対効果が抜群です。</p>
+            <div class="testimonial-footer">
+              <span class="testimonial-likes">❤️ 142</span>
+              <span class="testimonial-meta">38 コメント・12 シェア</span>
+            </div>
+          </div>
+
+          <!-- レビュー2 -->
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg,#8b5cf6,#3b82f6);">鈴</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">鈴木 美咲</div>
+                <div class="testimonial-role">代表取締役, AI Ventures Japan</div>
+              </div>
+              <div class="testimonial-li">in</div>
+            </div>
+            <p class="testimonial-text">チャットボット導入を12社で試みましたが、ここまでビジネス要件に寄り添って実装してくれたのは初めてです。リリース後のサポートも手厚く、安心して任せられます。</p>
+            <div class="testimonial-footer">
+              <span class="testimonial-likes">❤️ 589</span>
+              <span class="testimonial-meta">94 コメント・21 シェア</span>
+            </div>
+          </div>
+
+          <!-- レビュー3 -->
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg,#10b981,#06b6d4);">田</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">田中 浩二</div>
+                <div class="testimonial-role">Head of Data, Logistics Pro</div>
+              </div>
+              <div class="testimonial-li">in</div>
+            </div>
+            <p class="testimonial-text">MLOpsの基盤構築をお願いしました。モデルのデプロイサイクルが月1回から週次に短縮され、精度改善のスピードが劇的に上がりました。エンジニアリングの質が本当に高いです。</p>
+            <div class="testimonial-footer">
+              <span class="testimonial-likes">❤️ 47</span>
+              <span class="testimonial-meta">15 コメント・5 シェア</span>
+            </div>
+          </div>
+
+          <!-- レビュー4 -->
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg,#f97316,#ec4899);">中</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">中村 さやか</div>
+                <div class="testimonial-role">Founder, MedAI Solutions</div>
+              </div>
+              <div class="testimonial-li">in</div>
+            </div>
+            <p class="testimonial-text">医療領域という特殊な要件にも関わらず、セキュリティ要件を完璧にクリアしながらRAGシステムを構築してくれました。「やりたいこと」が全部実現できました。</p>
+            <div class="testimonial-footer">
+              <span class="testimonial-likes">❤️ 203</span>
+              <span class="testimonial-meta">41 コメント・9 シェア</span>
+            </div>
+          </div>
+
+          <!-- レビュー5 -->
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg,#6366f1,#a855f7);">伊</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">伊藤 大輔</div>
+                <div class="testimonial-role">プロダクトマネージャー, RetailAI</div>
+              </div>
+              <div class="testimonial-li">in</div>
+            </div>
+            <p class="testimonial-text">レコメンドエンジンの精度改善プロジェクトで協力いただきました。CVRが1.8倍になり、売上に直結する成果が出ました。データへの理解が深く、議論のレベルが違います。</p>
+            <div class="testimonial-footer">
+              <span class="testimonial-likes">❤️ 318</span>
+              <span class="testimonial-meta">56 コメント・14 シェア</span>
+            </div>
+          </div>
+
+          <!-- レビュー6 -->
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg,#14b8a6,#7c3aed);">小</div>
+              <div class="testimonial-info">
+                <div class="testimonial-name">小林 拓也</div>
+                <div class="testimonial-role">CEO, StartupBase Inc.</div>
+              </div>
+              <div class="testimonial-li">in</div>
+            </div>
+            <p class="testimonial-text">スタートアップのPoC段階から伴走してもらい、MVP完成まで2ヶ月。スピード感と柔軟性が素晴らしく、エンジニアとしての引き出しの多さに何度も驚かされました。</p>
+            <div class="testimonial-footer">
+              <span class="testimonial-likes">❤️ 91</span>
+              <span class="testimonial-meta">22 コメント・7 シェア</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         お問い合わせセクション
+         ============================================= -->
+    <section id="contact">
+      <div class="container">
+        <div class="section-header fade-in">
+          <span class="badge">CONTACT</span>
+          <h2>お問い合わせ</h2>
+          <p>AIソリューションに関するご相談・お見積りはこちらから。<br>24時間以内にご返信いたします。</p>
+        </div>
+
+        <div class="contact-card fade-in">
+          <!-- 送信フォーム -->
+          <form id="contact-form">
+            <div class="form-group">
+              <label for="name">お名前</label>
+              <input type="text" id="name" name="name" placeholder="山田 太郎" required>
+            </div>
+            <div class="form-group">
+              <label for="email">メールアドレス</label>
+              <input type="email" id="email" name="email" placeholder="example@company.com" required>
+            </div>
+            <div class="form-group">
+              <label for="message">お問い合わせ内容</label>
+              <textarea id="message" name="message" placeholder="ご相談内容をご記入ください..." required></textarea>
+            </div>
+            <button type="submit" class="btn-primary form-submit">送信する →</button>
+          </form>
+
+          <!-- 送信完了メッセージ -->
+          <div id="form-success">
+            ✅ お問い合わせを受け付けました。24時間以内にご連絡いたします。
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =============================================
+       フッター
+       ============================================= -->
+  <footer>
+    <div class="footer-inner">
+      <a href="#hero" class="footer-logo">
+        <span>🤖</span> テスト太郎 AI
+      </a>
+      <p class="footer-copy">© 2026 テスト太郎 AI. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- =============================================
+       チャットボットウィジェット
+       ============================================= -->
+  <div id="chatbot-widget">
+    <!-- チャットパネル -->
+    <div id="chatbot-panel" role="dialog" aria-label="AIチャットサポート">
+      <!-- ヘッダー -->
+      <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-header-info">
+          <div class="chat-header-name">AIアシスタント</div>
+          <div class="chat-header-status">オンライン</div>
+        </div>
+        <button class="chat-close" aria-label="チャットを閉じる">✕</button>
+      </div>
+
+      <!-- メッセージ表示エリア -->
+      <div id="chat-messages" role="log" aria-live="polite"></div>
+
+      <!-- クイック返信ボタン -->
+      <div id="chat-quick-replies"></div>
+
+      <!-- テキスト入力エリア -->
+      <div class="chat-input-area">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="メッセージを入力..."
+          autocomplete="off"
+          maxlength="200"
+        >
+        <button id="chat-send" aria-label="送信">➤</button>
+      </div>
+    </div>
+
+    <!-- フローティング開閉ボタン -->
+    <button id="chatbot-toggle" aria-label="チャットを開く">💬</button>
+  </div>
+
+  <!-- JavaScript読み込み -->
+  <script src="js/main.js"></script>
+  <script src="js/chatbot.js"></script>
+
+</body>
+</html>
