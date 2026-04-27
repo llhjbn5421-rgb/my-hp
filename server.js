@@ -1,11 +1,10 @@
 /* =============================================
    server.js — Claude API プロキシサーバー
-   起動: node server.js
+   Vercel/ローカル両対応版
    環境変数: ANTHROPIC_API_KEY
    ============================================= */
 
 import dotenv from 'dotenv';
-/* .env の値で既存の環境変数を強制上書き（空文字でセットされていても上書きする） */
 dotenv.config({ override: true });
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -15,7 +14,7 @@ import { fileURLToPath } from 'url';
 
 /* ESM で __dirname を再現 */
 const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 /* Anthropic クライアント初期化 */
 const anthropic = new Anthropic({
@@ -23,7 +22,7 @@ const anthropic = new Anthropic({
 });
 
 /* Express アプリ初期化 */
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 /* ─── ミドルウェア ─────────────────────────── */
@@ -41,9 +40,12 @@ app.use((req, res, next) => {
 /* 静的ファイル（index.html / css / js）を配信 */
 app.use(express.static(__dirname));
 
+/* ルート "/" に来たら index.html を返す */
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 /* ─── システムプロンプト ──────────────────── */
-/* ここに自社情報を記載してください。                        */
-/* プロンプトキャッシュ（cache_control）で毎回の入力コストを削減 */
 const SYSTEM_PROMPT = `あなたは「テスト太郎 AI」のサポートアシスタントです。
 以下の自社情報をもとに、お客様の質問に丁寧かつ正確にお答えください。
 情報にない内容は「詳しくはお問い合わせください」と案内し、憶測で回答しないでください。
@@ -85,20 +87,9 @@ A: Python / PyTorch / TensorFlow / LLM（Claude・GPT・Gemini）/ MLOps / RAG /
 - 回答は2〜4文程度にまとめ、読みやすくする`;
 
 /* ─── POST /api/chat ─────────────────────── */
-/**
- * リクエストボディ:
- *   { messages: [{ role: "user"|"assistant", content: string }, ...] }
- *
- * レスポンス:
- *   Content-Type: text/event-stream（SSE）
- *   data: { type: "delta", text: "..." }
- *   data: { type: "done" }
- *   data: { type: "error", message: "..." }
- */
 app.post('/api/chat', async (req, res) => {
   const { messages } = req.body;
 
-  /* バリデーション */
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'messages は空にできません' });
   }
@@ -107,15 +98,13 @@ app.post('/api/chat', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); /* nginx プロキシ対策 */
+  res.setHeader('X-Accel-Buffering', 'no');
 
-  /* SSE ヘルパー関数 */
   const sendEvent = (data) => {
     res.write(`data: ${JSON.stringify(data)}\n\n`);
   };
 
   try {
-    /* Claude API ストリーミング呼び出し */
     const stream = await anthropic.messages.stream({
       model: 'claude-opus-4-7',
       max_tokens: 1024,
@@ -123,14 +112,12 @@ app.post('/api/chat', async (req, res) => {
         {
           type: 'text',
           text: SYSTEM_PROMPT,
-          /* システムプロンプトをキャッシュして入力コストを削減 */
           cache_control: { type: 'ephemeral' },
         },
       ],
       messages,
     });
 
-    /* テキストデルタをリアルタイムでクライアントに送信 */
     for await (const chunk of stream) {
       if (
         chunk.type === 'content_block_delta' &&
@@ -140,20 +127,29 @@ app.post('/api/chat', async (req, res) => {
       }
     }
 
-    /* 完了通知 */
     sendEvent({ type: 'done' });
     res.end();
   } catch (err) {
     console.error('[Claude API Error]', err);
-    sendEvent({ type: 'error', message: 'AI との通信に失敗しました。しばらくしてから再度お試しください。' });
+    sendEvent({
+      type: 'error',
+      message: 'AI との通信に失敗しました。しばらくしてから再度お試しください。',
+    });
     res.end();
   }
 });
 
-/* ─── サーバー起動 ──────────────────────── */
-app.listen(PORT, () => {
-  console.log(`✅ サーバー起動: http://localhost:${PORT}`);
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.warn('⚠️  ANTHROPIC_API_KEY が設定されていません。.env ファイルを確認してください。');
-  }
-});
+/* ─── ローカル用: 直接 node server.js で起動したときだけ listen ── */
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`✅ サーバー起動: http://localhost:${PORT}`);
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.warn(
+        '⚠️  ANTHROPIC_API_KEY が設定されていません。.env ファイルを確認してください。'
+      );
+    }
+  });
+}
+
+/* ─── Vercel 用: アプリをエクスポート ───────────────────────── */
+export default app;
