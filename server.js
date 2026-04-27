@@ -28,6 +28,14 @@ const PORT = process.env.PORT || 3000;
 /* ─── ミドルウェア ─────────────────────────── */
 app.use(express.json());
 
+/* 静的ファイル（index.html / css / js）を配信 */
+app.use(express.static(__dirname));
+
+/* ルート "/" に来たら index.html を返す */
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 /* CORS — file:// や別オリジンから /api/chat を叩けるようにする */
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,14 +43,6 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
-});
-
-/* 静的ファイル（index.html / css / js）を配信 */
-app.use(express.static(__dirname));
-
-/* ルート "/" に来たら index.html を返す */
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 /* ─── システムプロンプト ──────────────────── */
